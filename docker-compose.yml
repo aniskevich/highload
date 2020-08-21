@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+
+    nginx:
+        image: nginx:latest
+        ports:
+        - '8080:80'
+        volumes:
+        - ./www:/www
+        - ./nginx.conf:/etc/nginx/conf.d/site.conf
+        links:
+        - fpm
+
+    fpm:
+        image: php:7.4-fpm
+        volumes:
+            - ./www:/www
+            
