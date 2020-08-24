@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+
+    proxy:
+        image: nginx:latest
+        ports:
+        - '8080:8080'
+        - '8081:8081'
+        volumes:
+        - ./www:/www
+        - ./config/proxy.conf:/etc/nginx/nginx.conf
+        depends_on:
+        - nginx
+        - apache
+
+    nginx:
+        image: nginx:latest
+        volumes:
+        - ./www:/www
+        - ./config/nginx.conf:/etc/nginx/conf.d/site.conf
+        links:
+        - fpm
+
+    fpm:
+        image: php:7.4-fpm
+        volumes:
+        - ./www:/www
+    
+    apache:
+        image: php:7.4-apache
+        volumes:
+        - ./www:/var/www/html
+            
