@@ -1,3 +1,5 @@
+const fs = require('fs')
+const path = require('path')
 const bcrypt = require('bcryptjs')
 
 const SALT_ROUNDS = 12
@@ -9,24 +11,36 @@ class User {
         this.password = bcrypt.hashSync(password, salt)
     }
 
-    create() {
-
+    async create() {
+        const fileName = path.resolve(__dirname, '..', 'mock', 'user.json')
+        const users = JSON.parse(fs.readFileSync(fileName, 'utf8'))
+        if (users.some(user => user.email === this.email)) throw new Error('User already exists')
+        else {
+            users.push(this)
+            fs.writeFile(fileName, JSON.stringify(users), (err) => {
+                if (err) throw err
+            })
+        }
     }
 
-    get() {
-
+    static get() {
+        
     }
 
-    getOne() {
-
+    static getOne(email) {
+        const fileName = path.resolve(__dirname, '..', 'mock', 'user.json')
+        const users = JSON.parse(fs.readFileSync(fileName, 'utf8'))
+        const user = users.filter(user => user.email === email)
+        if (!user.length) return null
+        else return user[0]
     }
 
     update() {
-
+        // TODO
     }
 
     delete() {
-
+        // TODO
     }
 }
 

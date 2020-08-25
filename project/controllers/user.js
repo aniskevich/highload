@@ -5,30 +5,30 @@ registrationForm = (req, res) => {
     res.render('registrationForm', { error })
 }
 
-// registration = async (req, res) => {
-//     const { repassword, ...rest } = req.body
-//     if (rest.password === repassword) {
-//         const user = new User(rest)
-//         await user.save().catch(err => res.redirect(`/registration?error=${err.message}`))
-//         res.redirect('/login')
-//     } else {
-//         res.redirect('/registration?error=Passwords dont match')
-//     }
-// }
+registration = async (req, res) => {
+    const { email, password, repassword } = req.body
+    if (password === repassword) {
+        const user = new User(email, password)
+        await user.create().catch(err => res.redirect(`/auth/registration?error=${err.message}`))
+        res.redirect('/auth')
+    } else {
+        res.redirect('/auth/registration?error=Passwords don\'t match')
+    }
+}
 
 loginForm = (req, res) => {
     const { error } = req.query
     res.render('loginForm', { error })
 }
 
-// logout = (req, res) => {
-//     req.logout()
-//     res.redirect('/login')
-// }
+logout = (req, res) => {
+    req.logout()
+    res.redirect('/auth')
+}
 
 module.exports = {
     registrationForm,
-    // registration,
+    registration,
     loginForm,
-    // logout,
+    logout,
 }
