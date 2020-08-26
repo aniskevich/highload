@@ -14,17 +14,21 @@ class User {
     async create() {
         const fileName = path.resolve(__dirname, '..', 'mock', 'user.json')
         const users = JSON.parse(fs.readFileSync(fileName, 'utf8'))
-        if (users.some(user => user.email === this.email)) throw new Error('User already exists')
+        if (users.some(user => user.email === this.email)) {
+            throw new Error('User already exists')
+            return null
+        }
         else {
             users.push(this)
             fs.writeFile(fileName, JSON.stringify(users), (err) => {
                 if (err) throw err
             })
+            return 'success'
         }
     }
 
     static get() {
-        
+        // TODO
     }
 
     static getOne(email) {
