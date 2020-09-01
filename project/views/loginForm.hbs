@@ -1,0 +1,10 @@
+<h2>Login form</h2>
+<div class="error">{{ error }}</div>
+<form action="/auth" method="POST">
+    <label for="email">Email</label>
+    <input type="text" name="email" required>
+    <label for="password">Password</label>
+    <input type="password" name="password" required>
+    <button>Log in</button>
+</form>
+<a href="/auth/registration"><button>To registration</button></a>
