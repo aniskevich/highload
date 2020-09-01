@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+    master:
+        image: 'mysql:latest'
+        container_name: db-master
+        volumes:
+            - ./config/master.cnf:/etc/mysql/conf.d/my.cnf
+            - ./config/master.sql:/docker-entrypoint-initdb.d/start.sql
+            - ./db/master:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: 'root'
+
+    slave:
+        image: 'mysql:latest'
+        container_name: db-slave
+        volumes:
+            - ./config/slave.cnf:/etc/mysql/conf.d/my.cnf
+            - ./config/slave.sql:/docker-entrypoint-initdb.d/start.sql
+            - ./db/slave:/var/lib/mysql
+        depends_on:
+            - master
+        environment:
+            MYSQL_ROOT_PASSWORD: 'root'
