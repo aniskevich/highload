@@ -1,0 +1,100 @@
+version: '3'
+
+services:
+
+    rabbitmq:
+        image: rabbitmq:3-management
+        container_name: rabbitmq
+        ports:
+            - '5672:5672'
+            - '15672:15672'
+
+    gateway:
+        image: node:latest
+        container_name: gateway
+        volumes:
+            - ./gateway/:/app
+        ports:
+            - 3000:3000
+        environment:
+            - NODE_ENV=development
+            - PORT=3000
+            - RABBIT_URI=amqp://guest:guest@rabbitmq:5672
+            - INPUT_QUEUE=complited
+            - OUTPUT_QUEUE=shop
+        depends_on:
+            - rabbitmq
+        command:
+            sh -c 'cd app && chmod +x ./wait-for-it.sh && ./wait-for-it.sh -t 30 rabbitmq:5672 && npm i && npm run dev'
+    
+    shop:
+        image: node:latest
+        container_name: shop
+        volumes:
+            - ./worker/:/app
+        ports:
+            - 3001:3001
+        environment:
+            - NODE_ENV=development
+            - PORT=3001
+            - RABBIT_URI=amqp://guest:guest@rabbitmq:5672
+            - INPUT_QUEUE=shop
+            - OUTPUT_QUEUE=billing
+        depends_on:
+            - rabbitmq
+        command:
+            sh -c 'cd app && chmod +x ./wait-for-it.sh && ./wait-for-it.sh -t 30 rabbitmq:5672 && npm i && npm run dev'
+
+    billing:
+        image: node:latest
+        container_name: billing
+        volumes:
+            - ./worker/:/app
+        ports:
+            - 3002:3002
+        environment:
+            - NODE_ENV=development
+            - PORT=3002
+            - RABBIT_URI=amqp://guest:guest@rabbitmq:5672
+            - INPUT_QUEUE=billing
+            - OUTPUT_QUEUE=delivery
+        depends_on:
+            - rabbitmq
+        command:
+            sh -c 'cd app && chmod +x ./wait-for-it.sh && ./wait-for-it.sh -t 30 rabbitmq:5672 && npm i && npm run dev'
+
+    delivery:
+        image: node:latest
+        container_name: delivery
+        volumes:
+            - ./worker/:/app
+        ports:
+            - 3003:3003
+        environment:
+            - NODE_ENV=development
+            - PORT=3003
+            - RABBIT_URI=amqp://guest:guest@rabbitmq:5672
+            - INPUT_QUEUE=delivery
+            - OUTPUT_QUEUE=reviews
+        depends_on:
+            - rabbitmq
+        command:
+            sh -c 'cd app && chmod +x ./wait-for-it.sh && ./wait-for-it.sh -t 30 rabbitmq:5672 && npm i && npm run dev'
+
+    reviews:
+        image: node:latest
+        container_name: reviews
+        volumes:
+            - ./worker/:/app
+        ports:
+            - 3004:3004
+        environment:
+            - NODE_ENV=development
+            - PORT=3004
+            - RABBIT_URI=amqp://guest:guest@rabbitmq:5672
+            - INPUT_QUEUE=reviews
+            - OUTPUT_QUEUE=complited
+        depends_on:
+            - rabbitmq
+        command:
+            sh -c 'cd app && chmod +x ./wait-for-it.sh && ./wait-for-it.sh -t 30 rabbitmq:5672 && npm i && npm run dev'
